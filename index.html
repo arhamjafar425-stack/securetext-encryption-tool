@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureText Lab</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, #25315f 0%, transparent 35%),
+                radial-gradient(circle at bottom right, #193d46 0%, transparent 30%),
+                #080d1c;
+            color: #edf2ff;
+            padding: 35px 20px;
+        }
+
+        .container {
+            width: min(1050px, 100%);
+            margin: auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 7px 14px;
+            border: 1px solid #40517e;
+            border-radius: 20px;
+            color: #9db8ff;
+            font-size: 13px;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.04);
+        }
+
+        h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        header p {
+            color: #9da8c4;
+            font-size: 16px;
+        }
+
+        .main-card {
+            background: rgba(16, 23, 45, 0.9);
+            border: 1px solid #293657;
+            border-radius: 22px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .field label {
+            display: block;
+            color: #aeb9d5;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        select,
+        input,
+        textarea {
+            width: 100%;
+            border: 1px solid #334265;
+            background: #0b1125;
+            color: #f2f5ff;
+            border-radius: 11px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        select,
+        input {
+            height: 46px;
+            padding: 0 13px;
+        }
+
+        textarea {
+            min-height: 230px;
+            resize: vertical;
+            padding: 15px;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+
+        select:focus,
+        input:focus,
+        textarea:focus {
+            border-color: #6e8cff;
+            box-shadow: 0 0 0 3px rgba(110,140,255,0.12);
+        }
+
+        .key-field {
+            display: none;
+        }
+
+        .text-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .text-box {
+            position: relative;
+        }
+
+        .box-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 9px;
+        }
+
+        .box-title span {
+            color: #aeb9d5;
+            font-size: 14px;
+        }
+
+        .counter {
+            color: #667594;
+            font-size: 12px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .encrypt-btn {
+            background: #6e8cff;
+            color: white;
+        }
+
+        .decrypt-btn {
+            background: #22a884;
+            color: white;
+        }
+
+        .hash-btn {
+            background: #a66cff;
+            color: white;
+        }
+
+        .secondary-btn {
+            background: #202b49;
+            color: #d9e1f7;
+            border: 1px solid #354363;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.08);
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 13px 15px;
+            border-radius: 10px;
+            background: #0b1328;
+            border: 1px solid #263554;
+            color: #91a0bd;
+            font-size: 14px;
+        }
+
+        .status.success {
+            color: #54e0ad;
+            border-color: #215c4d;
+        }
+
+        .status.error {
+            color: #ff7f8b;
+            border-color: #67323a;
+        }
+
+        .info {
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.025);
+            border: 1px solid #273554;
+        }
+
+        .info h3 {
+            margin-bottom: 8px;
+            color: #dfe6ff;
+            font-size: 16px;
+        }
+
+        .info p {
+            color: #8f9bb7;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            color: #65718e;
+            font-size: 12px;
+            margin-top: 25px;
+        }
+
+        @media (max-width: 750px) {
+            h1 {
+                font-size: 32px;
+            }
+
+            .toolbar,
+            .text-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-card {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <div class="badge">INFORMATION SECURITY PROJECT</div>
+        <h1>SecureText Lab</h1>
+        <p>A browser-based laboratory for experimenting with text encryption</p>
+    </header>
+
+    <main class="main-card">
+
+        <div class="toolbar">
+
+            <div class="field">
+                <label for="algorithm">Encryption Technique</label>
+
+                <select id="algorithm" onchange="updateFields()">
+                    <option value="caesar">Caesar Cipher</option>
+                    <option value="vigenere">Vigenère Cipher</option>
+                    <option value="railfence">Rail Fence Cipher</option>
+                    <option value="atbash">Atbash Cipher</option>
+                    <option value="base64">Base64 Encoding</option>
+                    <option value="sha256">SHA-256 Hash</option>
+                </select>
+            </div>
+
+            <div class="field key-field" id="keyContainer">
+                <label for="key" id="keyLabel">Key</label>
+                <input
+                    type="text"
+                    id="key"
+                    placeholder="Enter encryption key"
+                >
+            </div>
+
+            <div class="field">
+                <label for="operation">Operation</label>
+
+                <select id="operation">
+                    <option value="encrypt">Encrypt</option>
+                    <option value="decrypt">Decrypt</option>
+                </select>
+            </div>
+
+        </div>
+
+
+        <div class="text-grid">
+
+            <div class="text-box">
+                <div class="box-title">
+                    <span>Input Message</span>
+                    <span class="counter" id="inputCounter">0 characters</span>
+                </div>
+
+                <textarea
+                    id="inputText"
+                    placeholder="Type or paste your message here..."
+                    oninput="updateCounter()"
+                ></textarea>
+            </div>
+
+
+            <div class="text-box">
+                <div class="box-title">
+                    <span>Processed Result</span>
+                    <span class="counter" id="outputCounter">0 characters</span>
+                </div>
+
+                <textarea
+                    id="outputText"
+                    placeholder="Your encrypted, decrypted, or hashed result will appear here..."
+                    readonly
+                ></textarea>
+            </div>
+
+        </div>
+
+
+        <div class="actions">
+
+            <button class="encrypt-btn" onclick="processText()">
+                Process Text
+            </button>
+
+            <button class="hash-btn" onclick="hashText()">
+                Generate SHA-256
+            </button>
+
+            <button class="secondary-btn" onclick="copyResult()">
+                Copy Result
+            </button>
+
+            <button class="secondary-btn" onclick="clearAll()">
+                Reset
+            </button>
+
+        </div>
+
+
+        <div id="status" class="status">
+            Ready. Select a technique and enter your message.
+        </div>
+
+
+        <div class="info">
+            <h3 id="methodTitle">Caesar Cipher</h3>
+            <p id="methodDescription">
+                A substitution cipher that shifts alphabetic characters by a fixed number of positions.
+            </p>
+        </div>
+
+    </main>
+
+    <footer>
+        SecureText Lab • Information Security Assignment
+    </footer>
+
+</div>
+
+
+<script>
+
+    const algorithm = document.getElementById("algorithm");
+    const operation = document.getElementById("operation");
+    const inputText = document.getElementById("inputText");
+    const outputText = document.getElementById("outputText");
+    const key = document.getElementById("key");
+    const keyContainer = document.getElementById("keyContainer");
+    const keyLabel = document.getElementById("keyLabel");
+    const statusBox = document.getElementById("status");
+    const methodTitle = document.getElementById("methodTitle");
+    const methodDescription = document.getElementById("methodDescription");
+
+
+    const descriptions = {
+
+        caesar: {
+            title: "Caesar Cipher",
+            description:
+                "A classical substitution technique where letters are shifted through the alphabet using a numeric key."
+        },
+
+        vigenere: {
+            title: "Vigenère Cipher",
+            description:
+                "A polyalphabetic substitution cipher that uses a keyword to apply different shifts to different letters."
+        },
+
+        railfence: {
+            title: "Rail Fence Cipher",
+            description:
+                "A transposition cipher that rearranges characters by writing the message in a zigzag pattern across multiple rails."
+        },
+
+        atbash: {
+            title: "Atbash Cipher",
+            description:
+                "A substitution technique that reverses the alphabet, mapping A to Z, B to Y, and so on."
+        },
+
+        base64: {
+            title: "Base64",
+            description:
+                "A text encoding method that converts binary/text data into a Base64 representation. It is not a secure encryption algorithm."
+        },
+
+        sha256: {
+            title: "SHA-256",
+            description:
+                "A one-way cryptographic hash function that produces a 256-bit message digest."
+        }
+    };
+
+
+    function updateFields() {
+
+        const selected = algorithm.value;
+
+        methodTitle.textContent = descriptions[selected].title;
+        methodDescription.textContent = descriptions[selected].description;
+
+        keyContainer.style.display = "none";
+
+        if (selected === "caesar") {
+            keyContainer.style.display = "block";
+            keyLabel.textContent = "Shift Value";
+            key.placeholder = "Example: 3";
+            key.type = "number";
+        }
+
+        if (selected === "vigenere") {
+            keyContainer.style.display = "block";
+            keyLabel.textContent = "Keyword";
+            key.placeholder = "Example: SECURITY";
+            key.type = "text";
+        }
+
+        if (selected === "railfence") {
+            keyContainer.style.display = "block";
+            keyLabel.textContent = "Number of Rails";
+            key.placeholder = "Example: 3";
+            key.type = "number";
+        }
+
+        if (selected === "atbash" ||
+            selected === "base64" ||
+            selected === "sha256") {
+
+            operation.value = "encrypt";
+            operation.disabled = selected === "sha256";
+        } else {
+            operation.disabled = false;
+        }
+    }
+
+
+    function updateCounter() {
+
+        const count = inputText.value.length;
+
+        document.getElementById("inputCounter").textContent =
+            count + " characters";
+    }
+
+
+    function updateOutputCounter() {
+
+        const count = outputText.value.length;
+
+        document.getElementById("outputCounter").textContent =
+            count + " characters";
+    }
+
+
+    function setStatus(message, type = "") {
+
+        statusBox.textContent = message;
+
+        statusBox.className = "status";
+
+        if (type) {
+            statusBox.classList.add(type);
+        }
+    }
+
+
+    function validateInput() {
+
+        if (inputText.value.trim() === "") {
+
+            setStatus(
+                "Please enter some text before processing.",
+                "error"
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+    function processText() {
+
+        if (!validateInput()) return;
+
+        const selected = algorithm.value;
+        const mode = operation.value;
+        const text = inputText.value;
+
+        try {
+
+            let result = "";
+
+            if (selected === "caesar") {
+
+                const shift = parseInt(key.value);
+
+                if (isNaN(shift)) {
+                    throw new Error("Enter a valid numeric shift.");
+                }
+
+                result = caesarCipher(
+                    text,
+                    mode === "encrypt" ? shift : -shift
+                );
+            }
+
+
+            else if (selected === "vigenere") {
+
+                if (!/^[a-zA-Z]+$/.test(key.value)) {
+                    throw new Error(
+                        "Vigenère key must contain letters only."
+                    );
+                }
+
+                result = vigenereCipher(
+                    text,
+                    key.value,
+                    mode === "decrypt"
+                );
+            }
+
+
+            else if (selected === "railfence") {
+
+                const rails = parseInt(key.value);
+
+                if (
+                    isNaN(rails) ||
+                    rails < 2 ||
+                    rails >= text.length
+                ) {
+                    throw new Error(
+                        "Rails must be at least 2 and less than the message length."
+                    );
+                }
+
+                if (mode === "encrypt") {
+                    result = railFenceEncrypt(text, rails);
+                } else {
+                    result = railFenceDecrypt(text, rails);
+                }
+            }
+
+
+            else if (selected === "atbash") {
+
+                result = atbashCipher(text);
+            }
+
+
+            else if (selected === "base64") {
+
+                if (mode === "encrypt") {
+                    result = encodeBase64(text);
+                } else {
+                    result = decodeBase64(text);
+                }
+            }
+
+
+            else if (selected === "sha256") {
+
+                hashText();
+                return;
+            }
+
+
+            outputText.value = result;
+
+            updateOutputCounter();
+
+            setStatus(
+                "Operation completed successfully.",
+                "success"
+            );
+
+        } catch (error) {
+
+            setStatus(error.message, "error");
+        }
+    }
+
+
+    // ------------------------------------
+    // CAESAR CIPHER
+    // ------------------------------------
+
+    function caesarCipher(text, shift) {
+
+        shift = ((shift % 26) + 26) % 26;
+
+        return text.replace(/[a-zA-Z]/g, function(char) {
+
+            const base =
+                char >= "a" ? 97 : 65;
+
+            return String.fromCharCode(
+                ((char.charCodeAt(0) - base + shift) % 26)
+                + base
+            );
+        });
+    }
+
+
+    // ------------------------------------
+    // VIGENERE CIPHER
+    // ------------------------------------
+
+    function vigenereCipher(text, keyword, decrypt = false) {
+
+        keyword = keyword.toUpperCase();
+
+        let keyIndex = 0;
+
+        return text.replace(/[a-zA-Z]/g, function(char) {
+
+            const base =
+                char >= "a" ? 97 : 65;
+
+            const keyShift =
+                keyword.charCodeAt(keyIndex % keyword.length) - 65;
+
+            const shift =
+                decrypt ? -keyShift : keyShift;
+
+            keyIndex++;
+
+            return String.fromCharCode(
+                ((char.charCodeAt(0) - base + shift + 26) % 26)
+                + base
+            );
+        });
+    }
+
+
+    // ------------------------------------
+    // RAIL FENCE ENCRYPTION
+    // ------------------------------------
+
+    function railFenceEncrypt(text, rails) {
+
+        const fence = [];
+
+        for (let i = 0; i < rails; i++) {
+            fence.push([]);
+        }
+
+        let row = 0;
+        let direction = 1;
+
+        for (const char of text) {
+
+            fence[row].push(char);
+
+            if (row === 0) {
+                direction = 1;
+            }
+
+            if (row === rails - 1) {
+                direction = -1;
+            }
+
+            row += direction;
+        }
+
+        return fence.flat().join("");
+    }
+
+
+    // ------------------------------------
+    // RAIL FENCE DECRYPTION
+    // ------------------------------------
+
+    function railFenceDecrypt(cipher, rails) {
+
+        const pattern = [];
+
+        let row = 0;
+        let direction = 1;
+
+        for (let i = 0; i < cipher.length; i++) {
+
+            pattern.push(row);
+
+            if (row === 0) {
+                direction = 1;
+            }
+
+            if (row === rails - 1) {
+                direction = -1;
+            }
+
+            row += direction;
+        }
+
+        const counts = Array(rails).fill(0);
+
+        pattern.forEach(r => counts[r]++);
+
+        const railsArray = [];
+
+        let index = 0;
+
+        for (let i = 0; i < rails; i++) {
+
+            railsArray[i] =
+                cipher.slice(
+                    index,
+                    index + counts[i]
+                ).split("");
+
+            index += counts[i];
+        }
+
+        const positions = Array(rails).fill(0);
+
+        return pattern.map(r => {
+
+            const char = railsArray[r][positions[r]];
+
+            positions[r]++;
+
+            return char;
+
+        }).join("");
+    }
+
+
+    // ------------------------------------
+    // ATBASH
+    // ------------------------------------
+
+    function atbashCipher(text) {
+
+        return text.replace(/[a-zA-Z]/g, function(char) {
+
+            const base =
+                char >= "a" ? 97 : 65;
+
+            return String.fromCharCode(
+                base + (25 - (char.charCodeAt(0) - base))
+            );
+        });
+    }
+
+
+    // ------------------------------------
+    // BASE64
+    // ------------------------------------
+
+    function encodeBase64(text) {
+
+        return btoa(
+            unescape(
+                encodeURIComponent(text)
+            )
+        );
+    }
+
+
+    function decodeBase64(text) {
+
+        try {
+
+            return decodeURIComponent(
+                escape(
+                    atob(text)
+                )
+            );
+
+        } catch {
+
+            throw new Error(
+                "Invalid Base64 input."
+            );
+        }
+    }
+
+
+    // ------------------------------------
+    // SHA-256
+    // ------------------------------------
+
+    async function hashText() {
+
+        if (!validateInput()) return;
+
+        const data = new TextEncoder()
+            .encode(inputText.value);
+
+        const hashBuffer =
+            await crypto.subtle.digest(
+                "SHA-256",
+                data
+            );
+
+        const hashArray =
+            Array.from(new Uint8Array(hashBuffer));
+
+        const hashHex =
+            hashArray
+                .map(
+                    byte =>
+                        byte.toString(16).padStart(2, "0")
+                )
+                .join("");
+
+        outputText.value = hashHex;
+
+        updateOutputCounter();
+
+        setStatus(
+            "SHA-256 hash generated successfully.",
+            "success"
+        );
+    }
+
+
+    // ------------------------------------
+    // COPY
+    // ------------------------------------
+
+    async function copyResult() {
+
+        if (outputText.value === "") {
+
+            setStatus(
+                "There is no result to copy.",
+                "error"
+            );
+
+            return;
+        }
+
+        try {
+
+            await navigator.clipboard.writeText(
+                outputText.value
+            );
+
+            setStatus(
+                "Result copied to clipboard.",
+                "success"
+            );
+
+        } catch {
+
+            outputText.select();
+
+            document.execCommand("copy");
+
+            setStatus(
+                "Result copied to clipboard.",
+                "success"
+            );
+        }
+    }
+
+
+    // ------------------------------------
+    // RESET
+    // ------------------------------------
+
+    function clearAll() {
+
+        inputText.value = "";
+        outputText.value = "";
+        key.value = "";
+
+        updateCounter();
+        updateOutputCounter();
+
+        setStatus(
+            "Workspace cleared. Ready for a new message."
+        );
+    }
+
+
+    updateFields();
+    updateCounter();
+
+</script>
+
+</body>
+</html>
